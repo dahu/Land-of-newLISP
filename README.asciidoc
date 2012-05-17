@@ -1,0 +1,12 @@
+Land of newLISP
+---------------
+
+http://landoflisp.com/[Land of Lisp] is an accessible and friendly book about
+lisp, with cartoons and aliens. It's good. I like it.
+
+But... it uses Common Lisp. And I don't like that so much.
+
+So, this little repo holds newLISP versions of some of the Common Lisp examples
+from the book.
+
+A big thanks to Conrad Barski for giving his blessing on this work.
