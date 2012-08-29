@@ -59,3 +59,124 @@
            (print (dot-label node))
            (print "\"];"))
        nodes))
+
+
+; (defun edges->dot (edges)
+;   (mapc (lambda (node)
+;          (mapc (lambda (edge)
+;                 (fresh-line)
+;                 (princ (dot-name (car node)))
+;                 (princ "->")
+;                 (princ (dot-name (car edge)))
+;                 (princ "[label=\"")
+;                 (princ (dot-label (cdr edge)))
+;                 (princ "\"];"))
+;           (cdr node)))
+;    edges))
+
+(define (edges->dot edges)
+  (map (fn (node)
+        (map (fn (edge)
+              (println)
+              (print (dot-name (first node)))
+              (print "->")
+              (print (dot-name (first edge)))
+              (print "[label=\"")
+              (print (dot-label (rest edge)))
+              (print "\"];"))
+         (rest node)))
+   edges)
+   (println))
+
+; (defun graph->dot (nodes edges)
+;  (princ "digraph{")
+;  (nodes->dot nodes)
+;  (edges->dot edges)
+;  (princ "}"))
+
+(define (graph->dot nodes edges)
+  (print "digraph{")
+  (nodes->dot nodes)
+  (edges->dot edges)
+  (print "}"))
+
+
+; (defun dot->png (fname thunk)
+;  (with-open-file (*standard-output*
+;                   fname
+;                   :direction :output
+;                   :if-exists :supersede)
+;   (funcall thunk))
+;  (ext:shell (concatenate 'string "dot -Tpng -O " fname)))
+
+(define (dot->png fname thunk)
+  (device (open fname "write"))
+  (thunk)
+  (close (device))
+  (! (string "dot -Tpng -O " fname)))
+
+
+; (defun graph->png (fname nodes edges)
+;  (dot->png fname
+;   (lambda ()
+;    (graph->dot nodes edges))))
+
+(define (graph->png fname nodes edges)
+  (dot->png fname (fn () (graph->dot nodes edges))))
+
+
+; (defun uedges->dot (edges)
+;   (maplist (lambda (lst)
+;             (mapc (lambda (edge)
+;                    (unless (assoc (car edge) (cdr lst))
+;                     (fresh-line)
+;                     (princ (dot-name (caar lst)))
+;                     (princ "--")
+;                     (princ (dot-name (car edge)))
+;                     (princ "[label=\"")
+;                     (princ (dot-label (cdr edge)))
+;                     (princ "\"];")))
+;              (cdar lst)))
+;    edges))
+
+(define (uedges->dot edges , seen node e)
+ (dolist (lst edges)
+  (setf node (first lst))
+  ;(println node)
+  (map (fn (edge)
+        (setf e (first edge))
+        (unless (or (find (list node e) seen) (find (list e node) seen))
+         ;(println (string "adding " e " to " node))
+         (println)
+         (print (dot-name node))
+         (print "--")
+         (print (dot-name e))
+         (print "[label=\"")
+         (print (dot-label (rest edge)))
+         (print "\"];"))
+        (push (list node e) seen))
+   (rest lst))))
+
+
+; (defun ugraph->dot (nodes edges)
+;   (princ "graph{")
+;   (nodes->dot nodes)
+;   (uedges->dot edges)
+;   (princ "}"))
+
+(define (ugraph->dot nodes edges)
+  (println "graph{")
+  (nodes->dot nodes)
+  (uedges->dot edges)
+  (println "}"))
+
+
+; (defun ugraph->png (fname nodes edges)
+;   (dot->png fname
+;    (lambda ()
+;     (ugraph->dot nodes edges))))
+
+(define (ugraph->png fname nodes edges)
+  (dot->png fname (fn () (ugraph->dot nodes edges))))
+
+
